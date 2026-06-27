@@ -14,35 +14,32 @@ This document provides a comprehensive overview of the **Velmori Gifts** codebas
 
 ## 🛠️ Technology Stack
 1. **HTML5:** Semantic markup structure.
-2. **CSS3 (Vanilla):** Custom styles, layout structures (Flexbox & Grid), and modern transitions/animations. No external frameworks (like Bootstrap or Tailwind) are used.
+2. **CSS3 (Vanilla):** Custom styles, layout structures (Flexbox & Grid), glassmorphism, and modern transitions/animations. No external frameworks are used.
 3. **Vanilla JavaScript:** 
-   - Interactive canvas particle rendering (falling petals).
-   - Scroll-based animations using the `IntersectionObserver` API.
+   - **Lenis Smooth Scrolling:** Implemented for premium scroll physics.
+   - **Video Scrubbing Animation:** Binds a background MP4 video's `currentTime` to the user's scroll progress via Lenis.
+   - **Ripple Mouse Trail:** An elegant gold-rose expanding ring trail using a high-performance 40-element DOM object pool to avoid garbage collection jank.
+   - **Canvas Particle Rendering:** Soft falling petals in the background.
 4. **Typography (Google Fonts):**
-   - *Cormorant Garamond*: Serif font for headings, logos, and italic emphasizes.
-   - *Lato*: Sans-serif font for readability in body copy, labels, and stats.
-   - *Dancing Script*: Cursive font for script-like decorative accents.
+   - *Cormorant Garamond*: Serif font (600 semi-bold) for headings, logos, and italic emphasizes.
+   - *Lato*: Sans-serif font (400 regular) for readability in body copy, labels, and stats.
 
 ---
 
 ## 🎨 Design System & Customizations
 
 ### 1. Color Palette (CSS Variables)
-Defined in the `:root` selector at the top of [index.html](file:///c:/Users/aditi/Desktop/velmori%20gifts/velmori-gifts/index.html#L10-L14):
 * `--blush`: `#F5D5C8` (Accent backgrounds)
 * `--cream`: `#FDF6F0` (Main page background)
 * `--gold`: `#C9A84C` (Primary highlights & borders)
-* `--gold2`: `#E8CC80` (Secondary marquee text color)
 * `--rose`: `#B56070` (Secondary icons/labels)
-* `--rose2`: `#D4889A` (Secondary hover accent)
 * `--taupe`: `#8B7B6B` (Muted description/body text)
 * `--dark`: `#3D2B2B` (Primary text & dark backgrounds)
-* `--white`: `#FFFDF9` (Alternative block backgrounds)
-* `--deep`: `#2A1A1A` (Footer/deep dark sections)
 
-### 2. Fonts
-* Google Fonts are loaded via `<link>` in the HTML `<head>`.
-* Smooth scrolling is enabled globally (`html { scroll-behavior: smooth }`).
+### 2. Branding & Assets
+* **Logo:** The brand crest is stored at `images/logo.png`. It is displayed inside custom gold-rimmed circular containers (`border-radius: 50%; overflow: hidden;`) to mask the rectangular background in the Navbar, Hero Badge (text-free floating seal), and Footer.
+* **Products:** Product images are stored as standard image files (`.jpeg`/`.png`) inside the `images/` directory (e.g., `birthday_hamper.jpeg`, `apology_hamper.jpeg`, `bouque_pipe_cleaner.jpeg`). Base64 inline strings have been removed for performance.
+* **Videos:** Scroll animation videos are stored in the `media/` directory.
 
 ---
 
@@ -50,6 +47,8 @@ Defined in the `:root` selector at the top of [index.html](file:///c:/Users/adit
 ```
 velmori-gifts/
 ├── index.html        # Core file: Contains all markup, styles, and script logic.
+├── images/           # Contains product images and brand logo (logo.png).
+├── media/            # Contains video assets for scroll animations.
 ├── README.md         # Public README for repository overview and deployment info.
 └── build.md          # This file (AI developer guidelines & project status).
 ```
@@ -58,50 +57,32 @@ velmori-gifts/
 
 ## 🏗️ Detailed Architecture of `index.html`
 
-### 1. Styles Block (`<style>` in `<head>`) — Lines 8 to 196
-* Implements a responsive layout using media queries targeting screens up to `700px` wide.
-* Custom keyframe animations:
-  - `pulse`: Subtle glow pulsing for the hero badge.
-  - `float`: Floating bounce effect on the central "VG" hero badge.
-  - `sparkle-anim`: Flashing sparkle effect surrounding the hero badge.
-  - `scrollLine`: Animated line guide at the bottom of the hero section.
-  - `marquee`: Infinite horizontal text scrolling strip.
+### 1. Styles Block (`<style>` in `<head>`)
+* Implements a responsive layout with modern glassmorphism (`backdrop-filter`).
+* **Ripple Trail:** Defines `.ripple` elements for the custom 40-element DOM pool trail.
+* **Scroll Lock:** `html { scroll-behavior: auto !important }` ensures no conflict with the Lenis smooth scrolling.
 
-### 2. Markup Structure (`<body>`) — Lines 198 to 480
-* **Canvas Element (`#petals-canvas`):** A fixed background canvas covering the viewport with low opacity (`0.5`) to create a soft falling petal background.
-* **Navigation Bar (`.nav`):** Fixed-top container with frosted glass (`backdrop-filter`) effect, brand logo, and a WhatsApp CTA button.
-* **Hero Section (`.hero`):** 
-  - Radial gradient background with decorative absolute-positioned circles.
-  - Interactive central brand badge with floating leaf divider and animated custom star sparkles.
-  - Main CTA button linking to WhatsApp and a secondary click-to-call link.
-* **Marquee Strip (`.marquee-strip`):** Seamless infinitely loop-scrolled text list of product categories.
-* **About Section (`.about`):** Grid layout depicting brand philosophy accompanied by absolute-positioned circular badges ("✦ Handmade", "Made with Love ♡") and key metrics (100+ Happy Customers, 50+ Gift Designs, 5★ Rated).
-* **Products Grid (`.products`):** Multi-column CSS grid rendering product cards.
-  - **🚨 CRITICAL NOTE (Token Saving):** The product card `<img>` tags utilize inline Base64 data URIs (`src="data:image/jpeg;base64,..."`). These strings are **extremely long** (contributing to ~1MB of `index.html`'s size). **Do not inspect or output the content between lines 315 and 395 in full detail unless explicitly modified, to avoid consuming excessive context window tokens.**
-* **Process Flow (`.process`):** Steps outlining order completion (We Connect -> We Curate -> We Wrap -> Delivered) linked together via an absolute-positioned border line.
-* **Testimonials (`.testimonials`):** Review grid with custom quotation marks and styled ratings.
-* **Contact Card (`.contact`):** Darker visual card highlighting Ruchita Tawade, showing a detailed description of services, call detail, and a large WhatsApp CTA button.
-* **Footer (`footer`):** Minimal copyright note.
+### 2. Markup Structure (`<body>`)
+* **Ripple Container (`#ripple-container`):** Holds the DOM elements for the elegant mouse trail.
+* **Canvas Element (`#petals-canvas`):** Falling petal background.
+* **Navigation Bar (`.nav`):** Fixed-top container with frosted glass effect and circular logo mask.
+* **Hero Section (`.hero`):** Interactive central brand badge functioning as a floating text-free circular seal containing the VG logo.
+* **Video Scrubbing Section (`#scroll-container`):** A sticky container mapping the scroll position to the playback time of the background video, overlaying animated text slides.
+* **Products Grid (`.products`):** Multi-column CSS grid rendering product cards linked to local `/images`.
 
-### 3. JavaScript Logic (`<script>` at footer) — Lines 482 to 546
-* **Petal Fall Animation:**
-  - Standard JavaScript OOP using a `Petal` class managing variables: position (`x`, `y`), size, speed, wind drift, rotation, wobble, and color variations.
-  - Animation loop run via `requestAnimationFrame`.
-  - Resize event listener resetting canvas bounds dynamically.
-* **Scroll-driven Entry Animations:**
-  - Configures an `IntersectionObserver` observing elements with classes `.product-card`, `.testi-card`, `.process-step`, and `.about-inner>div`.
-  - Uses CSS transitions to trigger a slide-up and fade-in animation (`translateY(0)` + `opacity: 1`) once elements cross the `10%` visibility threshold.
+### 3. JavaScript Logic (`<script>` at footer)
+* **Lenis Integration:** Overrides native scroll and drives the custom scroll loop via `requestAnimationFrame`.
+* **Video Scrubbing:** Uses `lenis.on('scroll')` to calculate the percentage of the `#scroll-container` crossed and updates the video's `currentTime`.
+* **Ripple Trail:** High-performance loop updating the transform, opacity, and scale of 40 pre-created DOM rings based on cursor movement distance threshold (40px).
+* **Petal Fall Animation:** `Petal` class managing variables for position, size, wind drift, and color.
+* **Scroll-driven Entry Animations:** `IntersectionObserver` observing elements for slide-up/fade-in effects.
 
 ---
 
-## ⚡ Developer & AI Interaction Guidelines
-
-> [!WARNING]
-> **Token Optimization Alert:**
-> When editing `index.html`, avoid loading the whole file or matching/replacing chunks containing the `<img>` tags in the products grid. Instead, perform target edits by specifying line ranges (e.g. editing variables in the `<style>` block at lines 10-15 or changing script variables in the `<script>` block at lines 480-540).
-
-### 🛠️ Common Modification Tasks
-1. **Adjusting Colors:** Edit the CSS Custom Properties in the `:root` block (lines 10-14).
-2. **Adding/Removing Products:** Update elements within `.products-grid` (lines 310-399). Keep in mind that using external image URLs instead of long Base64 strings can reduce the HTML file size drastically.
-3. **Updating Contacts/Pricing:** Change text variables inside `.contact-card` (lines 459-470) and modify the WhatsApp message query string (`text=Hi%20Ruchita...`).
-4. **Tweaking Animation Speed/Quantity:** Modify the petal list generator `for (let i = 0; i < 40; i++)` (line 528) or edit property variables inside the `Petal` class.
+## ⚡ Current Status & Recent Changes (June 2026)
+* **Completed:** 
+  * Replaced base64 images with local files inside `images/`.
+  * Added sticky video scroll-scrubbing section.
+  * Replaced liquid warp cursor with an elegant DOM-pool based gold-rose ripple.
+  * Masked the brand logo in perfect circles across the site and simplified the hero badge into a pure logo seal.
+  * Upgraded typography weights for higher contrast and readability.
